@@ -1,14 +1,46 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const morgan = require('morgan');
+const colors = require('colors');
+const connectDB = require('./config/db');
 
-//load env config file
+// load env config file
 dotenv.config({ path: './config/config.env' });
+
+// Connect to database
+connectDB();
 
 const app = express();
 
+// Body parser -in order to get and parse json data - its build in on express lib
+app.use(express.json());
+
+// use morgan logger - Only for dev mode
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
+// IMPORT & MOUNT ALL ROUTES
+
+// Import Route files
+const bootcamp = require('./routes/bootcamps');
+
+//Bootcamp -Route
+app.use('/api/v1/bootcamps', bootcamp);
+
+// import the port for the server
 const PORT = process.env.PORT || 5000;
 
-app.listen(
+const server = app.listen(
   PORT,
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+  console.log(
+    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold
+  )
 );
+
+// Handle unhandled promise rejection
+process.on('unhandledRejection', (err, promise) => {
+  console.log(`Error: ${err.message}`.red);
+  // Close server & exit process
+  server.close(() => process.exit(1));
+});
