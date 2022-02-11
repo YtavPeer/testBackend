@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const colors = require('colors');
+const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 
 // load env config file
@@ -27,6 +28,9 @@ const bootcamp = require('./routes/bootcamps');
 
 //Bootcamp -Route
 app.use('/api/v1/bootcamps', bootcamp);
+
+//Error handler middleware
+app.use(errorHandler);
 
 // import the port for the server
 const PORT = process.env.PORT || 5000;
